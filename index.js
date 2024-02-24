@@ -13,6 +13,7 @@ app.use(express.json());
 
 // Routes
 require('./routes/category.routes.js')(app);
+require('./routes/user.routes.js')(app);
 
 app.get("/",(req,res) => {
   res.send("hello world")
