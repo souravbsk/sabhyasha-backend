@@ -2,16 +2,16 @@ const express = require("express");
 const { connectToDB } = require("./Utility/db.js");
 const app = express();
 const cors = require("cors");
-// const usersRoutes = require("./routes/user.routes.js");
-// const SubcategoryRoutes = require("./routes/subcategory.routes.js");
-
+const multer = require('multer');
+const upload = multer();
 const port = 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-
+app.use(upload.any());
 // Routes
+require('./routes/blog.routes.js')(app);
 require('./routes/category.routes.js')(app);
 require('./routes/user.routes.js')(app);
 
