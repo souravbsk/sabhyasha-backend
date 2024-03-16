@@ -1,6 +1,7 @@
 const { ObjectId } = require("mongodb");
 const collections = require("../Utility/collections");
 const { getSabhyashadb } = require("../Utility/db");
+const slugGenerate = require("../middleware/slugGenerate");
 
 // create a new  category 
 exports.createCategory = async (req, res) => {
@@ -11,7 +12,24 @@ exports.createCategory = async (req, res) => {
     const sabhyashadb = getSabhyashadb();
     const categoryCollection = sabhyashadb.collection(collections.categories);
 
-    const insertedCategory = await categoryCollection.insertOne(categoryData);
+
+
+    // slug url start
+    let generateSlugUrl = await slugGenerate(name);
+    const existingCategories = await categoryCollection.find({ slug: generateSlugUrl }).toArray();
+    if (existingCategories.length > 0) {
+      const totalCount = await categoryCollection.countDocuments();
+      let newSlug = generateSlugUrl;
+      while (existingCategories.find(category => category.slug === newSlug)) {
+        newSlug = `${generateSlugUrl}-${totalCount}`;
+      }
+      generateSlugUrl = newSlug;
+    }
+    //slug url end
+
+
+
+    const insertedCategory = await categoryCollection.insertOne({ ...categoryData, slug: generateSlugUrl });
     if (!insertedCategory) {
       res.status(404).json({ error: "Category not found" });
     }
@@ -38,9 +56,14 @@ exports.updateCategoryById = async (req, res) => {
     const sabhyashadb = getSabhyashadb();
     const categoryCollection = sabhyashadb.collection(collections.categories);
 
+
+    const generateSlugUrl = await slugGenerate(name, categoryCollection);
+
+
+
     const result = await categoryCollection.updateOne(
       { _id: new ObjectId(categoryId) },
-      { $set: { name, description, type, updatedAt } }
+      { $set: { name, description, type, updatedAt, slug: generateSlugUrl } }
     );
 
     if (result.modifiedCount === 0) {
@@ -126,7 +149,7 @@ exports.deleteCategoryById = async (req, res) => {
 
     res.status(200).json({
       message: "Category deleted successfully",
-      data:result
+      data: result
     });
   } catch (error) {
     console.error(error);
