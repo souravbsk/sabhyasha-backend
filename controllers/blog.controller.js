@@ -8,10 +8,6 @@ require('dotenv').config();
 
 
 
-
-
-
-
 exports.createBlog = async (req, res) => {
   console.log(req)
   try {
