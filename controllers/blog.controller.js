@@ -24,7 +24,8 @@ exports.createBlog = async (req, res) => {
           featureImageDescription,
         }
 
-        const generateSlugUrl = await slugGenerate(title, categoryCollection);
+        const generateSlugUrl = await slugGenerate(title, blogPostCollection);
+
 
         const newBlog = {
           title,
@@ -40,6 +41,7 @@ exports.createBlog = async (req, res) => {
 
         const insertedBlogPost = await blogPostCollection.insertOne(newBlog);
 
+
         if (!insertedBlogPost) {
           return res.status(404).json({ error: "Blog post not found" });
         }
@@ -50,7 +52,7 @@ exports.createBlog = async (req, res) => {
         });
       } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: error });
       }
     });
   } catch (error) {

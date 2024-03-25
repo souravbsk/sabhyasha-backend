@@ -3,9 +3,10 @@ require('dotenv').config();
 
 exports.uploadFile = async (req, res) => {
     try {
-        const imageURLs = await uploadToS3("BlogContent")(req, res, async () => {
+        const {folderName} = req?.body
+        console.log(folderName)
+        const imageURLs = await uploadToS3(folderName)(req, res, async () => {
             try {
-
                 console.log(req.fileUrls)
 
                 const uploadUrl = {
